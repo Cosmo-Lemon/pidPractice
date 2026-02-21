@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj.xrp.XRPMotor;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import edu.wpi.first.wpilibj.xrp.XRPRangefinder;
+import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -35,6 +37,9 @@ public class Robot extends TimedRobot {
     private final Encoder m_leftEncoder = new Encoder(4, 5);
     private final Encoder m_rightEncoder = new Encoder(6, 7);
 
+    private final XRPRangefinder rangeDistance = new XRPRangefinder();
+    private final XRPReflectanceSensor reflect = new XRPReflectanceSensor();
+
       
      
     private final double kDriveTick2Inch = Math.PI * 2.3622/585;
@@ -54,6 +59,9 @@ public class Robot extends TimedRobot {
     private double leftoutputSpeed = 0;
     private double rightoutputSpeed =0;
     private double averageoutputSpeed =0;
+
+
+  
 
 
   public Robot() {
@@ -95,6 +103,8 @@ public class Robot extends TimedRobot {
 
     leftMotor.set(leftoutputSpeed);
     rightMotor.set(rightoutputSpeed);
+
+    
   }
 
   @Override
@@ -113,14 +123,15 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("leftoutputSpeed value", leftoutputSpeed);
    SmartDashboard.putNumber("rightoutputSpeed value", rightoutputSpeed);
    SmartDashboard.putNumber("outputSpeed", averageoutputSpeed);
+
+   SmartDashboard.putNumber("rangedistance", rangeDistance.getDistanceInches());
    
    
   }
- workin
   @Override
   public void teleopInit() {
     m_leftEncoder.reset();
-    m_rightEncoder.reset();
+    m_rightEncoder.reset(); 
 
   }
 
