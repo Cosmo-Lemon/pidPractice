@@ -23,24 +23,42 @@ public class Robot extends TimedRobot {
      * initialization code.
      */
   
-     private XRPMotor leftMotor1 = new XRPMotor(0);
-     private XRPMotor rightMotor1 = new XRPMotor(1);
+     private XRPMotor leftMotor = new XRPMotor(0);
+     private XRPMotor rightMotor = new XRPMotor(1);
 
-     private DifferentialDrive dDrive = new DifferentialDrive(leftMotor1, rightMotor1);
+     private DifferentialDrive dDrive = new DifferentialDrive(leftMotor, rightMotor);
   
-     private XboxController joy1 = new XboxController(0);
+     private XboxController joy = new XboxController(0);
 
      // The XRP has onboard encoders that are hardcoded
-  // to use DIO pins 4/5 and 6/7 for the left and right
-  private final Encoder m_leftEncoder = new Encoder(4, 5);
-  private final Encoder m_rightEncoder = new Encoder(6, 7);
+     // to use DIO pins 4/5 and 6/7 for the left and right
+    private final Encoder m_leftEncoder = new Encoder(4, 5);
+    private final Encoder m_rightEncoder = new Encoder(6, 7);
 
       
      
-      private final double kDriveTick2Feet = 1.0 /128*6*Math.PI/12;
+    private final double kDriveTick2Inch = Math.PI * 2.3622/585;
+
+    final double kP = 0.045;
+
+    private double setpoint = 0;
+
+    private double leftsensorPosition =0;
+    private double rightsensorPosition =0;
+    private double averagesensorPosition = 0;
+
+    private double lefterror = 0;
+    private double righterror = 0;
+    private double averageerror = 0;
+
+    private double leftoutputSpeed = 0;
+    private double rightoutputSpeed =0;
+    private double averageoutputSpeed =0;
 
 
-  public Robot() {}
+  public Robot() {
+    rightMotor.setInverted(true);
+  }
 
 
 
@@ -52,49 +70,69 @@ public class Robot extends TimedRobot {
   
   }
 
-  final double kP = 0.05;
-
- double setpoint = 0;
+  
   @Override
   public void autonomousPeriodic() {
 
-      if (joy1.getRawButton(1));{
-        setpoint = 10;
-    } if (joy1.getRawButton(2));{
+      if (joy.getAButton()){
+        setpoint = 36;
+    } else{
         setpoint = 0;   
     }
   
 
-    double sensorPosition = m_leftEncoder.get() * kDriveTick2Feet;
-    double sensorPosition2 = m_rightEncoder.get() * kDriveTick2Feet;
+    leftsensorPosition = m_leftEncoder.get() * kDriveTick2Inch;
+    rightsensorPosition = m_rightEncoder.get() * kDriveTick2Inch;
+    averagesensorPosition = (leftsensorPosition + rightsensorPosition)/2; 
 
-    double error = setpoint - sensorPosition;
-    double error2 = setpoint - sensorPosition2;
+    lefterror = setpoint - leftsensorPosition;
+    righterror = setpoint - rightsensorPosition;
+    averageerror = (lefterror + righterror)/2;
 
-    double outputSpeed = kP * error;
-    double outputSpeed2 = kP  *error2;
+    leftoutputSpeed = kP * lefterror;
+    rightoutputSpeed = kP  *righterror;
+    averageoutputSpeed = (leftoutputSpeed + rightoutputSpeed)/2;
 
-    leftMotor1.set(-outputSpeed);
-    rightMotor1.set(outputSpeed2);
+    leftMotor.set(leftoutputSpeed);
+    rightMotor.set(rightoutputSpeed);
   }
 
   @Override
   public void robotPeriodic(){
    SmartDashboard.putNumber("leftEncoder value", m_leftEncoder.get());
    SmartDashboard.putNumber("rightEncoder value", m_rightEncoder.get());
-  }
 
+   SmartDashboard.putNumber("leftsensorPosition value", leftsensorPosition);
+   SmartDashboard.putNumber("rightsensorPosition value", rightsensorPosition);
+   SmartDashboard.putNumber("averagesensorPosition", averagesensorPosition);
+
+   SmartDashboard.putNumber("lefterror value", lefterror);
+   SmartDashboard.putNumber("righterror value", righterror);
+   SmartDashboard.putNumber("averageerror", averageerror);
+
+   SmartDashboard.putNumber("leftoutputSpeed value", leftoutputSpeed);
+   SmartDashboard.putNumber("rightoutputSpeed value", rightoutputSpeed);
+   SmartDashboard.putNumber("outputSpeed", averageoutputSpeed);
+   
+   
+  }
+ workin
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    m_leftEncoder.reset();
+    m_rightEncoder.reset();
+
+  }
 
   @Override
   public void teleopPeriodic() {
 
-    double speed = -joy1.getLeftY();
-    double speed2 = joy1.getRightY();
+  
    
 
-    dDrive.tankDrive(speed, speed2);
+    dDrive.arcadeDrive(-joy.getLeftY(),-joy.getRightX());
+
+  
 
   }
   
