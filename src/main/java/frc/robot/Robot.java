@@ -31,17 +31,21 @@ public class Robot extends TimedRobot {
   
      private XboxController joy = new XboxController(0);
 
-     // The XRP has onboard encoders that are hardcoded
-     // to use DIO pins 4/5 and 6/7 for the left and right
+     // The XRP has onboard encoders that are hardcoded. To use the DIO pins 4/5 left and 6/7 for right
     private final Encoder m_leftEncoder = new Encoder(4, 5);
     private final Encoder m_rightEncoder = new Encoder(6, 7);
 
     private final XRPRangefinder rangeFinder = new XRPRangefinder();
     private final XRPReflectanceSensor reflectSensor = new XRPReflectanceSensor();
-     
+      
+    /** documentation/frc-docs/docs/xrp-robot/getting-to-know-xrp.html is where I got this from
+    The wheel diameter = 60mm or 2.3622”
+    Encoder tick count per revolution = 585 */
+
     private final double kDriveTick2Inch = Math.PI * 2.3622/585;
 
-    final double kP = 0.045;
+    // The error correction
+    final double kP = 0.04;
 
     private double setpoint = 0;
 
@@ -78,7 +82,9 @@ public class Robot extends TimedRobot {
   
   @Override
   public void autonomousPeriodic() {
-    
+    /** The goal is to press the A button and it moves
+    Press B button it moves back
+    If an object is in the way, stop and move back */
 
       if (joy.getBButtonPressed()){
         setpoint = 0; 
@@ -98,7 +104,8 @@ public class Robot extends TimedRobot {
     leftsensorPosition = m_leftEncoder.get() * kDriveTick2Inch;
     rightsensorPosition = m_rightEncoder.get() * kDriveTick2Inch;
     averagesensorPosition = (leftsensorPosition + rightsensorPosition)/2; 
-
+ 
+    // Stop if something is to close and blocking the path
     currentPoint = averagesensorPosition;
 
     lefterror = setpoint - leftsensorPosition;
