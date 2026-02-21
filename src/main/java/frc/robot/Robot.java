@@ -4,13 +4,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.xrp.XRPMotor;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.xrp.XRPMotor;
 import edu.wpi.first.wpilibj.xrp.XRPRangefinder;
 import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
 
@@ -37,10 +36,8 @@ public class Robot extends TimedRobot {
     private final Encoder m_leftEncoder = new Encoder(4, 5);
     private final Encoder m_rightEncoder = new Encoder(6, 7);
 
-    private final XRPRangefinder rangeDistance = new XRPRangefinder();
-    private final XRPReflectanceSensor reflect = new XRPReflectanceSensor();
-
-      
+    private final XRPRangefinder rangeFinder = new XRPRangefinder();
+    private final XRPReflectanceSensor reflectSensor = new XRPReflectanceSensor();
      
     private final double kDriveTick2Inch = Math.PI * 2.3622/585;
 
@@ -48,20 +45,20 @@ public class Robot extends TimedRobot {
 
     private double setpoint = 0;
 
-    private double leftsensorPosition =0;
-    private double rightsensorPosition =0;
+    private double leftsensorPosition = 0;
+    private double rightsensorPosition = 0;
     private double averagesensorPosition = 0;
+
+    private double currentPoint = 0;
 
     private double lefterror = 0;
     private double righterror = 0;
     private double averageerror = 0;
 
     private double leftoutputSpeed = 0;
-    private double rightoutputSpeed =0;
-    private double averageoutputSpeed =0;
+    private double rightoutputSpeed = 0;
+    private double averageoutputSpeed = 0;
 
-
-  
 
 
   public Robot() {
@@ -81,24 +78,35 @@ public class Robot extends TimedRobot {
   
   @Override
   public void autonomousPeriodic() {
+    
 
-      if (joy.getAButton()){
-        setpoint = 36;
-    } else{
-        setpoint = 0;   
-    }
-  
+      if (joy.getBButtonPressed()){
+        setpoint = 0; 
+      }
+       else if  (joy.getAButtonPressed()){
+        setpoint = 40;
+      }
+
+      if (rangeFinder.getDistanceInches() <= 5.1 && setpoint > 0) {
+        setpoint = currentPoint;
+      } 
+    
+     
+
+   
 
     leftsensorPosition = m_leftEncoder.get() * kDriveTick2Inch;
     rightsensorPosition = m_rightEncoder.get() * kDriveTick2Inch;
     averagesensorPosition = (leftsensorPosition + rightsensorPosition)/2; 
+
+    currentPoint = averagesensorPosition;
 
     lefterror = setpoint - leftsensorPosition;
     righterror = setpoint - rightsensorPosition;
     averageerror = (lefterror + righterror)/2;
 
     leftoutputSpeed = kP * lefterror;
-    rightoutputSpeed = kP  *righterror;
+    rightoutputSpeed = kP  * righterror;
     averageoutputSpeed = (leftoutputSpeed + rightoutputSpeed)/2;
 
     leftMotor.set(leftoutputSpeed);
@@ -116,6 +124,9 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("rightsensorPosition value", rightsensorPosition);
    SmartDashboard.putNumber("averagesensorPosition", averagesensorPosition);
 
+   SmartDashboard.putNumber("currentPoint", currentPoint);
+   SmartDashboard.putNumber("setpoint", setpoint);
+
    SmartDashboard.putNumber("lefterror value", lefterror);
    SmartDashboard.putNumber("righterror value", righterror);
    SmartDashboard.putNumber("averageerror", averageerror);
@@ -124,7 +135,7 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("rightoutputSpeed value", rightoutputSpeed);
    SmartDashboard.putNumber("outputSpeed", averageoutputSpeed);
 
-   SmartDashboard.putNumber("rangedistance", rangeDistance.getDistanceInches());
+   SmartDashboard.putNumber("rangedistance", rangeFinder.getDistanceInches());
    
    
   }
