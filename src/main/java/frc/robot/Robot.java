@@ -4,11 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.xrp.XRPGyro;
 import edu.wpi.first.wpilibj.xrp.XRPMotor;
 import edu.wpi.first.wpilibj.xrp.XRPRangefinder;
 import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
@@ -37,6 +39,10 @@ public class Robot extends TimedRobot {
 
     private final XRPRangefinder rangeFinder = new XRPRangefinder();
     private final XRPReflectanceSensor reflectSensor = new XRPReflectanceSensor();
+
+    private final XRPGyro gyro = new XRPGyro();
+
+    public Rotation2d rotation = new Rotation2d();
       
     /** documentation/frc-docs/docs/xrp-robot/getting-to-know-xrp.html is where I got this from
     The wheel diameter = 60mm or 2.3622”
@@ -62,6 +68,11 @@ public class Robot extends TimedRobot {
     private double leftoutputSpeed = 0;
     private double rightoutputSpeed = 0;
     private double averageoutputSpeed = 0;
+
+    private double leftReflect = 0;
+    private double rightReflect = 0;
+
+   
 
 
 
@@ -97,9 +108,16 @@ public class Robot extends TimedRobot {
         setpoint = currentPoint;
       } 
     
-     
+    // Setting the reflect sensors
+    leftReflect = reflectSensor.getLeftReflectanceValue();
+    rightReflect = reflectSensor.getRightReflectanceValue();
 
-   
+    /** if() {
+       
+    }
+    else { 
+      
+    }  */
 
     leftsensorPosition = m_leftEncoder.get() * kDriveTick2Inch;
     rightsensorPosition = m_rightEncoder.get() * kDriveTick2Inch;
@@ -118,7 +136,6 @@ public class Robot extends TimedRobot {
 
     leftMotor.set(leftoutputSpeed);
     rightMotor.set(rightoutputSpeed);
-
     
   }
 
@@ -143,7 +160,23 @@ public class Robot extends TimedRobot {
    SmartDashboard.putNumber("outputSpeed", averageoutputSpeed);
 
    SmartDashboard.putNumber("rangedistance", rangeFinder.getDistanceInches());
+
+   SmartDashboard.putNumber("leftReflect value", leftReflect);
+   SmartDashboard.putNumber("rightReflect value", rightReflect);
    
+   SmartDashboard.putNumber("gyroangle value", gyro.getAngle());
+   SmartDashboard.putNumber("gyroangleY value", gyro.getAngleY());
+   SmartDashboard.putNumber("gyroangleX value", gyro.getAngleX());
+   SmartDashboard.putNumber("gyroangleZ value", gyro.getAngleZ());
+
+   SmartDashboard.putNumber("gyrorate value", gyro.getRate());
+   SmartDashboard.putNumber("gyrorateY value", gyro.getRateY());
+   SmartDashboard.putNumber("gyroarateX value", gyro.getRateX());
+   SmartDashboard.putNumber("gyroRateZ value", gyro.getRateZ());
+
+   // Helps give number for rotation of the gyro
+   rotation = gyro.getRotation2d();
+   SmartDashboard.putNumber("gyroRotation value", rotation.getDegrees());
    
   }
   @Override
