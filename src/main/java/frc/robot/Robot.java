@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.xrp.XRPMotor;
 import edu.wpi.first.wpilibj.xrp.XRPRangefinder;
 import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
 
+
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
  * the TimedRobot documentation. If you change the name of this class or the package after creating
@@ -111,19 +112,12 @@ public class Robot extends TimedRobot {
     // Setting the reflect sensors
     leftReflect = reflectSensor.getLeftReflectanceValue();
     rightReflect = reflectSensor.getRightReflectanceValue();
-
-    /** if() {
-       
-    }
-    else { 
-      
-    }  */
-
+    
     leftsensorPosition = m_leftEncoder.get() * kDriveTick2Inch;
     rightsensorPosition = m_rightEncoder.get() * kDriveTick2Inch;
     averagesensorPosition = (leftsensorPosition + rightsensorPosition)/2; 
- 
-    // Stop if something is to close and blocking the path
+
+     // Stop if something is to close and blocking the path
     currentPoint = averagesensorPosition;
 
     lefterror = setpoint - leftsensorPosition;
@@ -134,8 +128,27 @@ public class Robot extends TimedRobot {
     rightoutputSpeed = kP  * righterror;
     averageoutputSpeed = (leftoutputSpeed + rightoutputSpeed)/2;
 
+    // Line Sensor
+    if (joy.getYButtonPressed()) {
+      // Add boolean logic with ! maybe
+    }
+    // If left is greater, turn right
+    else if (leftReflect > rightReflect) {
+      leftoutputSpeed = leftoutputSpeed + 1;
+    }
+    // If right is greater, turn left
+    else if (rightReflect > leftReflect) {
+      rightoutputSpeed = rightoutputSpeed + 1;
+
+    }
+    // If left and right are equal, go straight
+    else {
+      //rightoutputSpeed = leftoutputSpeed;
+    }
+
     leftMotor.set(leftoutputSpeed);
     rightMotor.set(rightoutputSpeed);
+
     
   }
 
