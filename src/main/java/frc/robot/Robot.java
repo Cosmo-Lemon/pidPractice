@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Encoder;
@@ -75,7 +74,8 @@ public class Robot extends TimedRobot {
     private double rightReflect = 0;
 
     // Creates a PIDController with gains kP, kI, and kD
-    PIDController pid = new PIDController(0.04, 0, 0);
+    PIDController pidleftMotor = new PIDController(0.093, 0, 0);
+    PIDController pidrightMotor = new PIDController(0.09, 0, 0);
 
    
 
@@ -83,6 +83,9 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     rightMotor.setInverted(true);
+
+     m_leftEncoder.setDistancePerPulse(kDriveTick2Inch);
+     m_rightEncoder.setDistancePerPulse(kDriveTick2Inch);
   }
 
 
@@ -107,7 +110,7 @@ public class Robot extends TimedRobot {
         setpoint = 0; 
     }
     else if  (joy.getAButtonPressed()){
-        setpoint = 40;
+        setpoint = 36;
     }
 
     // if (rangeFinder.getDistanceInches() <= 5.1 && setpoint > 0) {
@@ -117,47 +120,47 @@ public class Robot extends TimedRobot {
     // Got all my PID code from https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/pidcontroller.html
 
     // Calculates the output of the PID algorithm based on the sensor reading and sends it to a motor
-    leftMotor.set(pid.calculate(m_leftEncoder.getDistance(), setpoint));
-    rightMotor.set(pid.calculate(m_rightEncoder.getDistance(), setpoint));
+    leftMotor.set(pidleftMotor.calculate(m_leftEncoder.getDistance(), setpoint));
+    rightMotor.set(pidrightMotor.calculate(m_rightEncoder.getDistance(), setpoint));
 
     // Sets the error tolerance to 5, and the error derivative tolerance to 10 per second
-    pid.setTolerance(5, 10);
+    // pid.setTolerance(5, 10);
     // Returns true if the error is less than 5 units, and the error derivative is less than 10 units
-    pid.atSetpoint();
+    // pid.atSetpoint();
 
     // The integral gain term will never add or subtract more than 0.5 from the total loop output
-    pid.setIntegratorRange(-0.5, 0.5);
+    // pid.setIntegratorRange(-0.5, 0.5);
 
     // Disable IZone
-    pid.setIZone(Double.POSITIVE_INFINITY);
+    // pid.setIZone(Double.POSITIVE_INFINITY);
     // Integral gain will not be applied if the absolute value of the error is more than 2
-    pid.setIZone(2);
+    // pid.setIZone(2);
 
     // Enables continuous input on a range from -180 to 180
-    pid.enableContinuousInput(-180, 180);
+    // pid.enableContinuousInput(-180, 180);
 
     // Clamps the controller output to between -0.5 and 0.5
-    MathUtil.clamp(pid.calculate(m_leftEncoder.getDistance(), setpoint), -0.5, 0.5);
-    MathUtil.clamp(pid.calculate(m_rightEncoder.getDistance(), setpoint), -0.5, 0.5);
+    // MathUtil.clamp(pid.calculate(m_leftEncoder.getDistance(), setpoint), -0.5, 0.5);
+    // MathUtil.clamp(pid.calculate(m_rightEncoder.getDistance(), setpoint), -0.5, 0.5);
     
     // Setting the reflect sensors
-    leftReflect = reflectSensor.getLeftReflectanceValue();
-    rightReflect = reflectSensor.getRightReflectanceValue();
+    // leftReflect = reflectSensor.getLeftReflectanceValue();
+    // rightReflect = reflectSensor.getRightReflectanceValue();
     
-    leftsensorPosition = m_leftEncoder.get() * kDriveTick2Inch;
+    /** leftsensorPosition = m_leftEncoder.get() * kDriveTick2Inch;
     rightsensorPosition = m_rightEncoder.get() * kDriveTick2Inch;
-    averagesensorPosition = (leftsensorPosition + rightsensorPosition)/2; 
+    averagesensorPosition = (leftsensorPosition + rightsensorPosition)/2; */
 
     // Stop if something is to close and blocking the path
     // currentPoint = averagesensorPosition;
 
-    lefterror = setpoint - leftsensorPosition;
+    /** lefterror = setpoint - leftsensorPosition;
     righterror = setpoint - rightsensorPosition;
     averageerror = (lefterror + righterror)/2;
 
     leftoutputSpeed = kP * lefterror;
     rightoutputSpeed = kP  * righterror;
-    averageoutputSpeed = (leftoutputSpeed + rightoutputSpeed)/2;
+    averageoutputSpeed = (leftoutputSpeed + rightoutputSpeed)/2;*/
 
     // Line Sensor
     // if (joy.getYButtonPressed()) {
@@ -225,6 +228,7 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void teleopInit() {
+    gyro.reset();
     m_leftEncoder.reset();
     m_rightEncoder.reset(); 
 
