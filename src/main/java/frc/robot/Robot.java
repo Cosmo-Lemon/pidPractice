@@ -22,19 +22,19 @@ import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
-    /**
+   /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
-     */
+   */
   
-     private XRPMotor leftMotor = new XRPMotor(0);
-     private XRPMotor rightMotor = new XRPMotor(1);
+    private XRPMotor leftMotor = new XRPMotor(0);
+    private XRPMotor rightMotor = new XRPMotor(1);
 
-     private DifferentialDrive dDrive = new DifferentialDrive(leftMotor, rightMotor);
+    private DifferentialDrive dDrive = new DifferentialDrive(leftMotor, rightMotor);
   
-     private XboxController joy = new XboxController(0);
+    private XboxController joy = new XboxController(0);
 
-     // The XRP has onboard encoders that are hardcoded. To use the DIO pins 4/5 left and 6/7 for right
+    // The XRP has onboard encoders that are hardcoded. To use the DIO pins 4/5 left and 6/7 for right
     private final Encoder m_leftEncoder = new Encoder(4, 5);
     private final Encoder m_rightEncoder = new Encoder(6, 7);
 
@@ -72,6 +72,9 @@ public class Robot extends TimedRobot {
 
     private double leftReflect = 0;
     private double rightReflect = 0;
+
+    private boolean lineFollow = false;
+  
 
    
 
