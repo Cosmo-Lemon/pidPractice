@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -14,7 +16,6 @@ import edu.wpi.first.wpilibj.xrp.XRPGyro;
 import edu.wpi.first.wpilibj.xrp.XRPMotor;
 import edu.wpi.first.wpilibj.xrp.XRPRangefinder;
 import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
-
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -73,6 +74,9 @@ public class Robot extends TimedRobot {
     private double leftReflect = 0;
     private double rightReflect = 0;
 
+    // Creates a PIDController with gains kP, kI, and kD
+    PIDController pid = new PIDController(0.04, 0, 0);
+
    
 
 
@@ -85,6 +89,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    gyro.reset();
     m_leftEncoder.reset();
     m_rightEncoder.reset();
 
@@ -98,16 +103,42 @@ public class Robot extends TimedRobot {
     Press B button it moves back
     If an object is in the way, stop and move back */
 
-      if (joy.getBButtonPressed()){
+    if (joy.getBButtonPressed()){
         setpoint = 0; 
-      }
-       else if  (joy.getAButtonPressed()){
+    }
+    else if  (joy.getAButtonPressed()){
         setpoint = 40;
-      }
+    }
 
-      if (rangeFinder.getDistanceInches() <= 5.1 && setpoint > 0) {
-        setpoint = currentPoint;
-      } 
+    // if (rangeFinder.getDistanceInches() <= 5.1 && setpoint > 0) {
+        // setpoint = currentPoint;
+    // } 
+
+    // Got all my PID code from https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/pidcontroller.html
+
+    // Calculates the output of the PID algorithm based on the sensor reading and sends it to a motor
+    leftMotor.set(pid.calculate(m_leftEncoder.getDistance(), setpoint));
+    rightMotor.set(pid.calculate(m_rightEncoder.getDistance(), setpoint));
+
+    // Sets the error tolerance to 5, and the error derivative tolerance to 10 per second
+    pid.setTolerance(5, 10);
+    // Returns true if the error is less than 5 units, and the error derivative is less than 10 units
+    pid.atSetpoint();
+
+    // The integral gain term will never add or subtract more than 0.5 from the total loop output
+    pid.setIntegratorRange(-0.5, 0.5);
+
+    // Disable IZone
+    pid.setIZone(Double.POSITIVE_INFINITY);
+    // Integral gain will not be applied if the absolute value of the error is more than 2
+    pid.setIZone(2);
+
+    // Enables continuous input on a range from -180 to 180
+    pid.enableContinuousInput(-180, 180);
+
+    // Clamps the controller output to between -0.5 and 0.5
+    MathUtil.clamp(pid.calculate(m_leftEncoder.getDistance(), setpoint), -0.5, 0.5);
+    MathUtil.clamp(pid.calculate(m_rightEncoder.getDistance(), setpoint), -0.5, 0.5);
     
     // Setting the reflect sensors
     leftReflect = reflectSensor.getLeftReflectanceValue();
@@ -117,8 +148,8 @@ public class Robot extends TimedRobot {
     rightsensorPosition = m_rightEncoder.get() * kDriveTick2Inch;
     averagesensorPosition = (leftsensorPosition + rightsensorPosition)/2; 
 
-     // Stop if something is to close and blocking the path
-    currentPoint = averagesensorPosition;
+    // Stop if something is to close and blocking the path
+    // currentPoint = averagesensorPosition;
 
     lefterror = setpoint - leftsensorPosition;
     righterror = setpoint - rightsensorPosition;
@@ -129,28 +160,28 @@ public class Robot extends TimedRobot {
     averageoutputSpeed = (leftoutputSpeed + rightoutputSpeed)/2;
 
     // Line Sensor
-    if (joy.getYButtonPressed()) {
+    // if (joy.getYButtonPressed()) {
       // Add boolean logic with ! maybe
     }
-    // If left is greater, turn right
+    /** If left is greater, turn right
     else if (leftReflect > rightReflect) {
       leftoutputSpeed = leftoutputSpeed + 1;
     }
     // If right is greater, turn left
     else if (rightReflect > leftReflect) {
-      rightoutputSpeed = rightoutputSpeed + 1;
+      rightoutputSpeed = rightoutputSpeed + 1; */
 
-    }
+    // }
     // If left and right are equal, go straight
-    else {
+    // else {
       //rightoutputSpeed = leftoutputSpeed;
-    }
+    // }
 
-    leftMotor.set(leftoutputSpeed);
-    rightMotor.set(rightoutputSpeed);
+    // leftMotor.set(leftoutputSpeed);
+    // rightMotor.set(rightoutputSpeed);
 
     
-  }
+  // }
 
   @Override
   public void robotPeriodic(){
