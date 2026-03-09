@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.xrp.XRPGyro;
 import edu.wpi.first.wpilibj.xrp.XRPMotor;
 import edu.wpi.first.wpilibj.xrp.XRPRangefinder;
 import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
+import edu.wpi.first.wpilibj.xrp.XRPServo;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -44,6 +45,8 @@ public class Robot extends TimedRobot {
     private final XRPGyro gyro = new XRPGyro();
 
     public Rotation2d rotation = new Rotation2d();
+
+    private XRPServo servo = new XRPServo(4);
       
     /** documentation/frc-docs/docs/xrp-robot/getting-to-know-xrp.html is where I got this from
     The wheel diameter = 60mm or 2.3622”
@@ -86,6 +89,8 @@ public class Robot extends TimedRobot {
 
      m_leftEncoder.setDistancePerPulse(kDriveTick2Inch);
      m_rightEncoder.setDistancePerPulse(kDriveTick2Inch);
+
+    
   }
 
 
@@ -218,8 +223,8 @@ public class Robot extends TimedRobot {
 
    SmartDashboard.putNumber("gyrorate value", gyro.getRate());
    SmartDashboard.putNumber("gyrorateY value", gyro.getRateY());
-   SmartDashboard.putNumber("gyroarateX value", gyro.getRateX());
-   SmartDashboard.putNumber("gyroRateZ value", gyro.getRateZ());
+   SmartDashboard.putNumber("gyrorateX value", gyro.getRateX());
+   SmartDashboard.putNumber("gyrorateZ value", gyro.getRateZ());
 
    // Helps give number for rotation of the gyro
    rotation = gyro.getRotation2d();
@@ -237,7 +242,15 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-  
+    if(joy.getAButtonPressed()){
+      servo.setAngle(90);
+    }
+    else if(joy.getBButtonPressed()){
+      servo.setAngle(180);
+    }
+    else if(joy.getYButtonPressed()){
+      servo.setAngle(10);
+     }
    
 
     dDrive.arcadeDrive(-joy.getLeftY(),-joy.getRightX());
