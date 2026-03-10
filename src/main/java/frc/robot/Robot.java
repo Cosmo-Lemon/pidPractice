@@ -6,16 +6,19 @@ package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.xrp.XRPGyro;
+import edu.wpi.first.wpilibj.xrp.XRPOnBoardIO;
 import edu.wpi.first.wpilibj.xrp.XRPMotor;
 import edu.wpi.first.wpilibj.xrp.XRPRangefinder;
 import edu.wpi.first.wpilibj.xrp.XRPReflectanceSensor;
 import edu.wpi.first.wpilibj.xrp.XRPServo;
+import frc.robot.subsystems.Drivetrain;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -28,16 +31,19 @@ public class Robot extends TimedRobot {
      * initialization code.
      */
   
-     private XRPMotor leftMotor = new XRPMotor(0);
-     private XRPMotor rightMotor = new XRPMotor(1);
+     // private XRPMotor leftMotor = new XRPMotor(0);
+     // private XRPMotor rightMotor = new XRPMotor(1);
 
-     private DifferentialDrive dDrive = new DifferentialDrive(leftMotor, rightMotor);
+     // private DifferentialDrive dDrive = new DifferentialDrive(leftMotor, rightMotor);
+
+     private final Drivetrain
+     m_drivetrain = new Drivetrain();
   
-     private XboxController joy = new XboxController(0);
+     // private XboxController joy = new XboxController(0);
 
      // The XRP has onboard encoders that are hardcoded. To use the DIO pins 4/5 left and 6/7 for right
-    private final Encoder m_leftEncoder = new Encoder(4, 5);
-    private final Encoder m_rightEncoder = new Encoder(6, 7);
+    // private final Encoder m_leftEncoder = new Encoder(4, 5);
+    // private final Encoder m_rightEncoder = new Encoder(6, 7);
 
     private final XRPRangefinder rangeFinder = new XRPRangefinder();
     private final XRPReflectanceSensor reflectSensor = new XRPReflectanceSensor();
@@ -47,6 +53,8 @@ public class Robot extends TimedRobot {
     public Rotation2d rotation = new Rotation2d();
 
     private XRPServo servo = new XRPServo(4);
+
+    private XRPOnBoardIO boardio = new XRPOnBoardIO();
       
     /** documentation/frc-docs/docs/xrp-robot/getting-to-know-xrp.html is where I got this from
     The wheel diameter = 60mm or 2.3622”
@@ -85,10 +93,10 @@ public class Robot extends TimedRobot {
 
 
   public Robot() {
-    rightMotor.setInverted(true);
+    // rightMotor.setInverted(true);
 
-     m_leftEncoder.setDistancePerPulse(kDriveTick2Inch);
-     m_rightEncoder.setDistancePerPulse(kDriveTick2Inch);
+    // m_leftEncoder.setDistancePerPulse(kDriveTick2Inch);
+    // m_rightEncoder.setDistancePerPulse(kDriveTick2Inch);
 
     
   }
@@ -98,10 +106,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     gyro.reset();
-    m_leftEncoder.reset();
-    m_rightEncoder.reset();
+    // m_leftEncoder.reset();
+    // m_rightEncoder.reset();
 
-  
+    boardio.setLed(true);
+
   }
 
   
@@ -111,11 +120,11 @@ public class Robot extends TimedRobot {
     Press B button it moves back
     If an object is in the way, stop and move back */
 
-    if (joy.getBButtonPressed()){
+    /** if (joy.getBButtonPressed()){
         setpoint = 0; 
     }
     else if  (joy.getAButtonPressed()){
-        setpoint = 36;
+        setpoint = 36; */
     }
 
     // if (rangeFinder.getDistanceInches() <= 5.1 && setpoint > 0) {
@@ -125,8 +134,8 @@ public class Robot extends TimedRobot {
     // Got all my PID code from https://docs.wpilib.org/en/stable/docs/software/advanced-controls/controllers/pidcontroller.html
 
     // Calculates the output of the PID algorithm based on the sensor reading and sends it to a motor
-    leftMotor.set(pidleftMotor.calculate(m_leftEncoder.getDistance(), setpoint));
-    rightMotor.set(pidrightMotor.calculate(m_rightEncoder.getDistance(), setpoint));
+    // leftMotor.set(pidleftMotor.calculate(m_leftEncoder.getDistance(), setpoint));
+    // rightMotor.set(pidrightMotor.calculate(m_rightEncoder.getDistance(), setpoint));
 
     // Sets the error tolerance to 5, and the error derivative tolerance to 10 per second
     // pid.setTolerance(5, 10);
@@ -170,7 +179,7 @@ public class Robot extends TimedRobot {
     // Line Sensor
     // if (joy.getYButtonPressed()) {
       // Add boolean logic with ! maybe
-    }
+    //}
     /** If left is greater, turn right
     else if (leftReflect > rightReflect) {
       leftoutputSpeed = leftoutputSpeed + 1;
@@ -193,8 +202,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic(){
-   SmartDashboard.putNumber("leftEncoder value", m_leftEncoder.get());
-   SmartDashboard.putNumber("rightEncoder value", m_rightEncoder.get());
+   // SmartDashboard.putNumber("leftEncoder value", m_leftEncoder.get());
+   // SmartDashboard.putNumber("rightEncoder value", m_rightEncoder.get());
 
    SmartDashboard.putNumber("leftsensorPosition value", leftsensorPosition);
    SmartDashboard.putNumber("rightsensorPosition value", rightsensorPosition);
@@ -233,16 +242,18 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void teleopInit() {
-    gyro.reset();
-    m_leftEncoder.reset();
-    m_rightEncoder.reset(); 
 
+    gyro.reset();
+    // m_leftEncoder.reset();
+    // m_rightEncoder.reset(); 
+    
+    boardio.setLed(true);
   }
 
   @Override
   public void teleopPeriodic() {
 
-    if(joy.getAButtonPressed()){
+    /** if(joy.getAButtonPressed()){
       servo.setAngle(90);
     }
     else if(joy.getBButtonPressed()){
@@ -250,10 +261,10 @@ public class Robot extends TimedRobot {
     }
     else if(joy.getYButtonPressed()){
       servo.setAngle(10);
-     }
+     } */
    
 
-    dDrive.arcadeDrive(-joy.getLeftY(),-joy.getRightX());
+    // dDrive.arcadeDrive(-joy.getLeftY(),-joy.getRightX());
 
   
 
