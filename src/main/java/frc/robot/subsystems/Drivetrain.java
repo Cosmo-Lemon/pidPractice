@@ -21,7 +21,7 @@ public class Drivetrain extends SubsystemBase {
 
   // The XRP has onboard encoders that are hardcoded. To use the DIO pins 4/5 left and 6/7 for right
   private final Encoder m_leftEncoder = new Encoder(4, 5);
-  private final Encoder m_rightEncoder = new Encoder(6, 7);
+  private final Encoder m_rightEncoder = new Encoder(6, 7); 
  
   /** Creates a new Drivetrain. */
   public Drivetrain() {

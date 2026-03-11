@@ -37,9 +37,9 @@ public class Robot extends TimedRobot {
      // private DifferentialDrive dDrive = new DifferentialDrive(leftMotor, rightMotor);
 
      private final Drivetrain
-     m_drivetrain = new Drivetrain();
+     m_drivetrain = new Drivetrain();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
   
-     // private XboxController joy = new XboxController(0);
+    private XboxController joy = new XboxController(0);
 
      // The XRP has onboard encoders that are hardcoded. To use the DIO pins 4/5 left and 6/7 for right
     // private final Encoder m_leftEncoder = new Encoder(4, 5);
@@ -253,6 +253,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+
+
     /** if(joy.getAButtonPressed()){
       servo.setAngle(90);
     }
@@ -265,6 +267,7 @@ public class Robot extends TimedRobot {
    
 
     // dDrive.arcadeDrive(-joy.getLeftY(),-joy.getRightX());
+    m_drivetrain.drive(-joy.getLeftY(),-joy.getRightX());
 
   
 
